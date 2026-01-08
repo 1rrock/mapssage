@@ -1,7 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    unoptimized: true,
+  },
+  serverExternalPackages: [
+    "sharp",
+    "@libsql/isomorphic-ws",
+    "@libsql/client",
+  ],
 };
 
 export default nextConfig;
