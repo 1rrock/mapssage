@@ -6,6 +6,10 @@
   "compatibility_flags": [
     "nodejs_compat"
   ],
+  "vars": {
+    "NEXT_PUBLIC_APP_URL": "https://mapssage.zxcv1685.workers.dev",
+    "NEXT_PUBLIC_KAKAO_JS_KEY": "d1a4388f340c51f934d6ba6942ecd829"
+  },
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
