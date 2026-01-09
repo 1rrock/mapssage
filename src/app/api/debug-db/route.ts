@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@tursodatabase/serverless/compat';
 
-export async function GET() {
+export async function GET(request: Request) {
   const url = process.env.TURSO_CONNECTION_URL;
   const authToken = process.env.TURSO_AUTH_TOKEN;
 
@@ -13,9 +13,12 @@ export async function GET() {
     });
   }
 
+  const { searchParams } = new URL(request.url);
+  const query = searchParams.get('q') || 'SELECT 1 as test';
+
   try {
     const client = createClient({ url, authToken });
-    const result = await client.execute('SELECT 1 as test');
+    const result = await client.execute(query);
     
     return NextResponse.json({
       success: true,

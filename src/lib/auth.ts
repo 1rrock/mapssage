@@ -1,9 +1,7 @@
 import NextAuth from 'next-auth';
 import KakaoProvider from 'next-auth/providers/kakao';
-import { DrizzleAdapter } from '@auth/drizzle-adapter';
-import { db } from './db';
+import { TursoAdapter } from './turso-adapter';
 import { authConfig } from './auth.config';
-import { users, accounts, sessions } from './db/schema';
 import { JWT } from 'next-auth/jwt';
 import { generateRandomNickname } from './nickname';
 
@@ -45,11 +43,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   debug: true,
   trustHost: true,
-  adapter: DrizzleAdapter(db, {
-    usersTable: users,
-    accountsTable: accounts,
-    sessionsTable: sessions,
-  }),
+  adapter: TursoAdapter(),
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
