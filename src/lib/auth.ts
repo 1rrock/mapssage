@@ -117,17 +117,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return session;
     },
   },
-  // Keep the insecure cookie for localhost dev if needed, 
-  // but standard NextAuth handles this. Re-adding user's preference just in case
-  cookies: {
-    sessionToken: {
-      name: 'authjs.session-token',
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-      },
-    },
-  },
 });
