@@ -2,9 +2,9 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "main": ".open-next/worker.js",
   "name": "mapssage",
-  "compatibility_date": "2024-09-23",
+  "compatibility_date": "2024-12-01",
   "compatibility_flags": [
-    "nodejs_compat"
+    "nodejs_compat_v2"
   ],
   "vars": {
     "NEXT_PUBLIC_APP_URL": "https://mapssage.zxcv1685.workers.dev",
