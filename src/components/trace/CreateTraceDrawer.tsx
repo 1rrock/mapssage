@@ -126,7 +126,7 @@ export default function CreateTraceDrawer({
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full border-b-2 border-[#E5D5C5] bg-transparent pb-3 text-2xl font-black text-[#264653] placeholder:text-[#264653]/30 focus:border-[#FF5A5F] focus:outline-none transition-colors"
+                  className="w-full border-b-2 border-border bg-transparent pb-3 text-2xl font-black text-foreground placeholder:text-foreground/30 focus:border-primary focus:outline-none transition-colors"
                   placeholder="제목을 입력하세요"
                   disabled={isSubmitting}
                   maxLength={100}
@@ -166,9 +166,9 @@ export default function CreateTraceDrawer({
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isSubmitting}
-                    className="flex w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-[#E5D5C5] bg-white/50 py-10 text-[#264653]/50 transition-all hover:border-[#FF5A5F] hover:text-[#FF5A5F] hover:bg-white disabled:opacity-50 group"
+                    className="flex w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-border bg-white/50 py-10 text-foreground/50 transition-all hover:border-primary hover:text-primary hover:bg-white disabled:opacity-50 group"
                   >
-                    <div className="p-3 rounded-full bg-[#FF5A5F]/5 group-hover:bg-[#FF5A5F]/10 transition-colors">
+                    <div className="p-3 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors">
                       <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
@@ -183,18 +183,18 @@ export default function CreateTraceDrawer({
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   rows={6}
-                  className="w-full resize-none rounded-2xl border-2 border-[#E5D5C5] bg-white p-4 text-lg font-medium text-[#264653] placeholder:text-[#264653]/30 focus:border-[#FF5A5F] focus:outline-none focus:ring-0 transition-all shadow-inner"
+                  className="w-full resize-none rounded-2xl border-2 border-border bg-white p-4 text-lg font-medium text-foreground placeholder:text-foreground/30 focus:border-primary focus:outline-none focus:ring-0 transition-all shadow-inner"
                   placeholder="이곳에 따뜻한 마음을 담은 메시지를 작성하세요..."
                   disabled={isSubmitting}
                   maxLength={1000}
                 />
-                <p className="mt-2 text-right text-xs font-bold text-[#264653]/40">
+                <p className="mt-2 text-right text-xs font-bold text-foreground/40">
                   {content.length}/1000
                 </p>
               </div>
 
               {location && (
-                <div className="flex items-center gap-3 rounded-xl bg-[#264653]/5 px-4 py-3 text-sm font-bold text-[#264653]">
+                <div className="flex items-center gap-3 rounded-xl bg-foreground/5 px-4 py-3 text-sm font-bold text-foreground">
                   <span className="text-lg">📬</span>
                   <span>현재 위치에서 메시지가 배달됩니다</span>
                 </div>
@@ -208,19 +208,19 @@ export default function CreateTraceDrawer({
                 type="button"
                 onClick={handleClose}
                 disabled={isSubmitting}
-                className="flex-1 rounded-2xl bg-[#F3E5D8] py-4 text-base font-black text-[#264653] transition-all hover:bg-[#EBDBCB] active:scale-[0.98] disabled:opacity-50"
+                className="flex-1 rounded-2xl bg-muted py-3 sm:py-4 text-base font-black text-foreground transition-all hover:opacity-80 active:scale-[0.98] disabled:opacity-50"
               >
                 나중에 담기
               </button>
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting || !title.trim() || !content.trim()}
-                className="flex-[2] rounded-2xl bg-[#FF5A5F] py-4 text-base font-black text-white shadow-lg transition-all hover:bg-[#FF454A] active:scale-[0.98] disabled:bg-gray-300"
+                className="flex-[2] rounded-2xl bg-primary py-3 sm:py-4 text-base font-black text-white shadow-lg transition-all hover:opacity-90 active:scale-[0.98] disabled:bg-gray-300"
               >
                 {isSubmitting ? (
                   <span className="flex items-center justify-center gap-2">
-                    <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
                     전송 중...

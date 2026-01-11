@@ -1,33 +1,33 @@
 @import "tailwindcss";
 
 @theme {
-  /* Minimalist Gray Theme Colors */
-  --color-primary: #E3E3E3;
-  --color-primary-foreground: #1A1A1A;
+  /* Cute & Warm Theme Colors matching logo.png */
+  --color-primary: #FF5757;
+  --color-primary-foreground: #FFFFFF;
 
-  --color-background: #FFFFFF;
-  --color-foreground: #1A1A1A;
+  --color-background: #FCEBDA;
+  --color-foreground: #4A2C2C;
 
   --color-card: #FFFFFF;
-  --color-card-foreground: #1A1A1A;
+  --color-card-foreground: #4A2C2C;
 
   --color-popover: #FFFFFF;
-  --color-popover-foreground: #1A1A1A;
+  --color-popover-foreground: #4A2C2C;
 
-  --color-muted: #F5F5F5;
-  --color-muted-foreground: #737373;
+  --color-muted: #F5EBE0;
+  --color-muted-foreground: #8B7373;
 
-  --color-accent: #000000;
+  --color-accent: #FF5757;
   --color-accent-foreground: #FFFFFF;
 
-  --color-border: #E3E3E3;
+  --color-border: #FDE2D2;
   --color-input: #FFFFFF;
-  --color-ring: #E3E3E3;
+  --color-ring: #FF5757;
 
-  --color-destructive: #404040;
+  --color-destructive: #FF4444;
   --color-destructive-foreground: #FFFFFF;
 
-  --radius-default: 1rem;
+  --radius-default: 1.5rem;
 }
 
 @layer base {

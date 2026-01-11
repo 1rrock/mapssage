@@ -13,28 +13,34 @@ export default function Header() {
       : 'text-gray-600 hover:text-primary';
 
   return (
-    <header className="fixed top-0 z-50 w-full border-b border-[#000000]/5 bg-[#E3E3E3] transition-all">
+    <header className="fixed top-0 z-50 w-full border-b border-border bg-background transition-all" role="banner">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-10">
-          <Link href="/map" className="flex items-center gap-2 group transition-transform hover:scale-105">
-            <img src="/logo.png" alt="Mapssage Logo" className="h-8 w-8 object-contain" />
+          <Link
+            href="/map"
+            className="flex items-center gap-2 group transition-transform hover:scale-105"
+            aria-label="Mapssage 홈으로 이동"
+          >
+            <img src="/logo.png" alt="Mapssage Logo" className="h-10 w-10 object-contain" />
           </Link>
-          <nav className="hidden items-center gap-6 md:flex">
+          <nav className="hidden items-center gap-4 md:flex" aria-label="메인 네비게이션">
             <Link
               href="/map"
-              className={`text-sm font-bold transition-all relative py-1.5 px-4 rounded-full ${pathname === '/map'
-                ? 'bg-black text-white shadow-sm'
-                : 'text-black/60 hover:text-black hover:bg-black/5'
+              className={`text-sm font-bold transition-all relative py-2 px-6 rounded-full ${pathname === '/map'
+                ? 'bg-primary text-white shadow-md'
+                : 'text-foreground/60 hover:text-foreground hover:bg-foreground/5'
                 }`}
+              aria-current={pathname === '/map' ? 'page' : undefined}
             >
               지도
             </Link>
             <Link
               href="/mypage"
-              className={`text-sm font-bold transition-all relative py-1.5 px-4 rounded-full ${pathname === '/mypage'
-                ? 'bg-black text-white shadow-sm'
-                : 'text-black/60 hover:text-black hover:bg-black/5'
+              className={`text-sm font-bold transition-all relative py-2 px-6 rounded-full ${pathname === '/mypage'
+                ? 'bg-primary text-white shadow-md'
+                : 'text-foreground/60 hover:text-foreground hover:bg-foreground/5'
                 }`}
+              aria-current={pathname === '/mypage' ? 'page' : undefined}
             >
               마이페이지
             </Link>

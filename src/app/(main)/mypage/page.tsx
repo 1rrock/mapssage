@@ -58,9 +58,9 @@ function ProfileSection() {
   };
 
   return (
-    <section className="flex flex-col items-center text-center p-8 bg-white rounded-3xl shadow-sm border border-gray-100">
+    <section className="flex flex-col items-center text-center p-8 bg-white rounded-3xl shadow-sm border border-border">
       <div className="relative mb-6 group">
-        <div className="relative h-32 w-32 rounded-full overflow-hidden border-4 border-black shadow-md transition-transform transform group-hover:scale-105">
+        <div className="relative h-32 w-32 rounded-full overflow-hidden border-4 border-primary shadow-md transition-transform transform group-hover:scale-105">
           <img
             src={profile?.image || session?.user?.image || '/default-avatar.png'}
             alt="프로필"
@@ -78,7 +78,7 @@ function ProfileSection() {
         <button
           onClick={() => fileInputRef.current?.click()}
           disabled={isUploadingImage}
-          className="absolute bottom-1 right-1 p-2 rounded-full bg-white shadow-lg border border-gray-200 text-gray-600 hover:text-primary hover:border-primary transition-all"
+          className="absolute bottom-1 right-1 p-2 rounded-full bg-white shadow-lg border border-border text-foreground/60 hover:text-primary hover:border-primary transition-all"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
@@ -108,7 +108,7 @@ function ProfileSection() {
             <button
               onClick={handleNameSave}
               disabled={updateProfile.isPending}
-              className="rounded-xl bg-black px-4 py-2 font-medium text-white hover:bg-black/90 transition-colors"
+              className="rounded-xl bg-primary px-4 py-2 font-medium text-white hover:opacity-90 transition-colors"
             >
               저장
             </button>
@@ -121,7 +121,7 @@ function ProfileSection() {
           </div>
         ) : (
           <div className="flex items-center justify-center gap-2 group">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-foreground">
               {profile?.name || session?.user?.name || '이름 없음'}
             </h2>
             <button
@@ -134,7 +134,7 @@ function ProfileSection() {
             </button>
           </div>
         )}
-        <p className="text-gray-500 font-medium">{profile?.email || session?.user?.email}</p>
+        <p className="text-foreground/50 font-medium">{profile?.email || session?.user?.email}</p>
       </div>
     </section>
   );
@@ -145,7 +145,7 @@ function AccountSection({ onDeleteClick }: { onDeleteClick: () => void }) {
     <div className="flex flex-wrap justify-end gap-3 mt-4">
       <button
         onClick={() => signOut({ callbackUrl: '/' })}
-        className="rounded-xl px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-colors"
+        className="rounded-xl px-4 py-2 text-sm font-medium text-foreground/50 hover:text-foreground hover:bg-muted transition-colors"
       >
         로그아웃
       </button>
@@ -292,8 +292,8 @@ function TraceListSection() {
     <section className="mt-8">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <h2 className="text-xl font-bold text-gray-900">내 메시지</h2>
-          <span className="bg-black px-2.5 py-0.5 rounded-full text-xs font-bold text-white">
+          <h2 className="text-xl font-bold text-foreground">내 메시지</h2>
+          <span className="bg-primary px-2.5 py-0.5 rounded-full text-xs font-bold text-white">
             {displayTraces.length}
           </span>
         </div>
@@ -302,18 +302,20 @@ function TraceListSection() {
           className={cn(
             "rounded-full px-4 py-1.5 text-xs font-semibold transition-all shadow-sm border",
             showDeleted
-              ? "bg-gray-800 text-white border-gray-800 hover:bg-gray-900"
-              : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+              ? "bg-foreground text-white border-foreground hover:opacity-90"
+              : "bg-white text-foreground/60 border-border hover:bg-muted"
           )}
+          aria-pressed={showDeleted}
+          aria-label={showDeleted ? '삭제된 메시지 숨기기' : '삭제된 메시지 보기'}
         >
           {showDeleted ? '활성 메시지 보기' : '휴지통'}
         </button>
       </div>
 
       {displayTraces.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-gray-200 bg-gray-50/50 p-12 text-center min-h-[300px]">
+        <div className="flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-border bg-white/50 p-12 text-center min-h-[300px]">
           <div className="mb-4 text-5xl opacity-50">{showDeleted ? '🗑️' : '📍'}</div>
-          <p className="text-lg font-medium text-gray-900">
+          <p className="text-lg font-medium text-foreground">
             {showDeleted ? '삭제된 메시지이 없습니다' : '아직 남긴 메시지이 없습니다'}
           </p>
           {!showDeleted && (
@@ -350,7 +352,7 @@ function TraceListSection() {
 
               <div className="flex flex-1 flex-col p-5">
                 {!trace.imageUrl && (
-                  <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-1">
+                  <h3 className="text-lg font-bold text-foreground mb-2 line-clamp-1">
                     {trace.title}
                   </h3>
                 )}
@@ -395,13 +397,12 @@ export default function MyPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5] pb-10">
-      <div className="bg-[#E3E3E3]/50 h-64 w-full absolute top-0 left-0 -z-10" />
+    <main className="min-h-screen bg-background pb-10">
       <div className="mx-auto max-w-5xl px-4 pt-24">
-        <div className="mb-8">
-          <h1 className="text-4xl font-black text-black tracking-tighter">마이페이지</h1>
-          <p className="text-black/60 mt-2 font-medium">나의 활동과 추억을 관리해보세요.</p>
-        </div>
+        <header className="mb-8">
+          <h1 className="text-4xl font-black text-foreground tracking-tighter">마이페이지</h1>
+          <p className="text-foreground/60 mt-2 font-medium">나의 활동과 추억을 관리해보세요.</p>
+        </header>
 
         <div className="space-y-6">
           <ProfileSection />
@@ -414,6 +415,6 @@ export default function MyPage() {
           onClose={() => setShowDeleteModal(false)}
         />
       </div>
-    </div>
+    </main>
   );
 }

@@ -10,7 +10,7 @@ export default function CreateTraceButton() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-8 left-1/2 z-10 flex h-16 -translate-x-1/2 items-center gap-3 rounded-2xl bg-black px-8 shadow-2xl hover:bg-black/90 active:scale-[0.97] transition-all group"
+        className="fixed bottom-8 left-1/2 z-10 flex h-14 sm:h-16 -translate-x-1/2 items-center gap-3 rounded-2xl bg-primary px-6 sm:px-8 shadow-2xl hover:opacity-90 active:scale-[0.97] transition-all group"
         aria-label="메시지 남기기"
       >
         <div className="relative">
