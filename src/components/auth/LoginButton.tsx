@@ -1,15 +1,23 @@
 'use client';
 
 import { signIn } from 'next-auth/react';
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 export function LoginButton() {
   const [isLoading, setIsLoading] = useState(false);
+  const isSigningIn = useRef(false);
   const searchParams = useSearchParams();
-  const handleKakaoLogin = async () => {
+
+  const handleKakaoLogin = useCallback(async () => {
+    if (isSigningIn.current || isLoading) {
+      return;
+    }
+
     try {
+      isSigningIn.current = true;
       setIsLoading(true);
+
       const origin = window.location.origin;
       const callbackPath = searchParams.get('callbackUrl') || '/map';
       const callbackUrl = callbackPath.startsWith('http')
@@ -19,9 +27,10 @@ export function LoginButton() {
       await signIn('kakao', { callbackUrl });
     } catch (error) {
       console.error('Login failed:', error);
+      isSigningIn.current = false;
       setIsLoading(false);
     }
-  };
+  }, [searchParams, isLoading]);
 
   return (
     <button

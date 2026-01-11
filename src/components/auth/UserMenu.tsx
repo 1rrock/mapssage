@@ -1,12 +1,31 @@
 'use client';
 
 import { signOut, useSession } from 'next-auth/react';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Link from 'next/link';
+import { useQueryClient } from '@tanstack/react-query';
 
 export function UserMenu() {
   const { data: session, status } = useSession();
   const [isOpen, setIsOpen] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const queryClient = useQueryClient();
+
+  const handleSignOut = useCallback(async () => {
+    if (isSigningOut) return;
+
+    try {
+      setIsSigningOut(true);
+      setIsOpen(false);
+
+      queryClient.clear();
+
+      await signOut({ callbackUrl: '/login', redirect: true });
+    } catch (error) {
+      console.error('Sign out failed:', error);
+      setIsSigningOut(false);
+    }
+  }, [isSigningOut, queryClient]);
 
   if (status === 'loading') {
     return (
@@ -17,10 +36,6 @@ export function UserMenu() {
   if (!session?.user) {
     return null;
   }
-
-  const handleSignOut = async () => {
-    await signOut({ callbackUrl: '/login' });
-  };
 
   return (
     <div className="relative">
