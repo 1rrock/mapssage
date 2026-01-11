@@ -3,7 +3,6 @@ import KakaoProvider from 'next-auth/providers/kakao';
 import { TursoAdapter } from './turso-adapter';
 import { authConfig } from './auth.config';
 import { JWT } from 'next-auth/jwt';
-import { generateRandomNickname } from './nickname';
 
 async function refreshAccessToken(token: JWT): Promise<JWT> {
   try {
@@ -60,13 +59,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   callbacks: {
     ...authConfig.callbacks,
-    async signIn({ user, account, profile, email, credentials }) {
-      if (user && !user.name) {
-        user.name = generateRandomNickname();
-        // Set default image if not provided
-        if (!user.image) {
-          user.image = '/default-avatar.png'; // Or use R2 URL later
-        }
+    async signIn({ user }) {
+      if (user && !user.image) {
+        user.image = '/default-avatar.png';
       }
       return true;
     },

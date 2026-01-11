@@ -3,6 +3,7 @@
  * Uses raw fetch to Turso HTTP API - no Node.js dependencies
  */
 import type { Adapter } from 'next-auth/adapters';
+import { generateRandomNickname } from './nickname';
 
 function generateId(): string {
   return crypto.randomUUID();
@@ -79,15 +80,16 @@ export function TursoAdapter(): Adapter {
   return {
     async createUser(user) {
       const id = (user as any).id || generateId();
+      const randomNickname = generateRandomNickname();
       
       await tursoExecute(
         `INSERT INTO users (id, name, email, email_verified, image) VALUES (?, ?, ?, ?, ?)`,
-        [id, user.name ?? null, user.email ?? null, user.emailVerified?.getTime() ?? null, user.image ?? null]
+        [id, randomNickname, user.email ?? null, user.emailVerified?.getTime() ?? null, user.image ?? null]
       );
 
       return {
         id,
-        name: user.name ?? null,
+        name: randomNickname,
         email: user.email ?? '',
         emailVerified: user.emailVerified ?? null,
         image: user.image ?? null,

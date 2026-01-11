@@ -1,6 +1,7 @@
 import { auth } from '@/lib/auth';
 import { UserMenu } from '@/components/auth/UserMenu';
 import Link from 'next/link';
+import KakaoBannerAd from '@/components/ads/KakaoBannerAd';
 
 export default async function Home() {
   const session = await auth();
@@ -56,6 +57,8 @@ export default async function Home() {
           )}
         </section>
       </main>
+
+      <KakaoBannerAd />
 
       <footer className="border-t border-border py-6" role="contentinfo">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
