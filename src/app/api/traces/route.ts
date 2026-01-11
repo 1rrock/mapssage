@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { db } from '@/lib/db';
-import { traces, users } from '@/lib/db/schema';
-import { eq, and, isNull } from 'drizzle-orm';
+import { tursoExecute } from '@/lib/turso-client';
 import { calculateDistance } from '@/lib/utils/distance';
 import type { TraceWithDistance, CreateTraceInput } from '@/types/trace';
 
@@ -29,48 +27,50 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const allTraces = await db
-      .select({
-        trace: traces,
-        user: {
-          id: users.id,
-          name: users.name,
-          image: users.image,
-        },
-      })
-      .from(traces)
-      .leftJoin(users, eq(traces.userId, users.id))
-      .where(
-        and(
-          eq(traces.isDeleted, false),
-          isNull(traces.expiresAt)
-        )
-      );
+    const result = await tursoExecute(`
+      SELECT 
+        t.id, t.user_id, t.title, t.content, t.image_url, 
+        t.latitude, t.longitude, t.is_deleted, t.expires_at, 
+        t.created_at, t.updated_at,
+        u.id as user_id_joined, u.name as user_name, u.image as user_image
+      FROM traces t
+      LEFT JOIN users u ON t.user_id = u.id
+      WHERE t.is_deleted = 0 AND t.expires_at IS NULL
+    `);
 
-    const tracesWithDistance: TraceWithDistance[] = allTraces
+    const tracesWithDistance: TraceWithDistance[] = result.rows
       .filter(
         (row) =>
-          row.user !== null &&
-          row.trace.content !== null &&
-          row.trace.isDeleted !== null
+          row.user_id_joined !== null &&
+          row.content !== null &&
+          row.is_deleted !== null
       )
       .map((row) => {
         const distance = calculateDistance(
           lat,
           lng,
-          row.trace.latitude,
-          row.trace.longitude
+          Number(row.latitude),
+          Number(row.longitude)
         );
 
         return {
-          ...row.trace,
-          content: row.trace.content!,
-          isDeleted: row.trace.isDeleted!,
-          user: row.user!,
+          id: row.id,
+          userId: row.user_id,
+          title: row.title,
+          content: row.content,
+          imageUrl: row.image_url,
+          latitude: Number(row.latitude),
+          longitude: Number(row.longitude),
+          isDeleted: row.is_deleted === '1' || row.is_deleted === 1,
+          expiresAt: row.expires_at ? new Date(Number(row.expires_at)) : null,
+          createdAt: new Date(Number(row.created_at)),
+          updatedAt: new Date(Number(row.updated_at)),
+          user: {
+            id: row.user_id_joined,
+            name: row.user_name,
+            image: row.user_image,
+          },
           distance,
-          createdAt: new Date(row.trace.createdAt),
-          updatedAt: new Date(row.trace.updatedAt),
-          expiresAt: row.trace.expiresAt ? new Date(row.trace.expiresAt) : null,
         };
       })
       .filter((trace) => trace.distance <= MAX_DISTANCE_KM)
@@ -113,17 +113,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const [newTrace] = await db
-      .insert(traces)
-      .values({
-        userId: session.user.id,
-        title: body.title,
-        content: body.content,
-        imageUrl: body.imageUrl || null,
-        latitude: body.latitude,
-        longitude: body.longitude,
-      })
-      .returning();
+    const id = crypto.randomUUID();
+    const now = Date.now();
+
+    await tursoExecute(
+      `INSERT INTO traces (id, user_id, title, content, image_url, latitude, longitude, is_deleted, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?)`,
+      [id, session.user.id, body.title, body.content, body.imageUrl || null, body.latitude, body.longitude, now, now]
+    );
+
+    const newTrace = {
+      id,
+      userId: session.user.id,
+      title: body.title,
+      content: body.content,
+      imageUrl: body.imageUrl || null,
+      latitude: body.latitude,
+      longitude: body.longitude,
+      isDeleted: false,
+      expiresAt: null,
+      createdAt: new Date(now),
+      updatedAt: new Date(now),
+    };
 
     return NextResponse.json(newTrace, { status: 201 });
   } catch (error) {

@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { db } from '@/lib/db';
-import { traces } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { tursoExecute } from '@/lib/turso-client';
 
 export async function DELETE(
   request: NextRequest,
@@ -16,24 +14,24 @@ export async function DELETE(
 
     const { id } = await params;
 
-    const [trace] = await db
-      .select()
-      .from(traces)
-      .where(eq(traces.id, id))
-      .limit(1);
+    const result = await tursoExecute(
+      'SELECT id, user_id FROM traces WHERE id = ? LIMIT 1',
+      [id]
+    );
 
-    if (!trace) {
+    if (result.rows.length === 0) {
       return NextResponse.json({ error: 'Trace not found' }, { status: 404 });
     }
 
-    if (trace.userId !== session.user.id) {
+    const trace = result.rows[0];
+    if (trace.user_id !== session.user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    await db
-      .update(traces)
-      .set({ isDeleted: true, updatedAt: new Date() })
-      .where(eq(traces.id, id));
+    await tursoExecute(
+      'UPDATE traces SET is_deleted = 1, updated_at = ? WHERE id = ?',
+      [Date.now(), id]
+    );
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -58,25 +56,25 @@ export async function PATCH(
     const { id } = await params;
     const body = await request.json();
 
-    const [trace] = await db
-      .select()
-      .from(traces)
-      .where(eq(traces.id, id))
-      .limit(1);
+    const result = await tursoExecute(
+      'SELECT id, user_id FROM traces WHERE id = ? LIMIT 1',
+      [id]
+    );
 
-    if (!trace) {
+    if (result.rows.length === 0) {
       return NextResponse.json({ error: 'Trace not found' }, { status: 404 });
     }
 
-    if (trace.userId !== session.user.id) {
+    const trace = result.rows[0];
+    if (trace.user_id !== session.user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     if (body.restore === true) {
-      await db
-        .update(traces)
-        .set({ isDeleted: false, updatedAt: new Date() })
-        .where(eq(traces.id, id));
+      await tursoExecute(
+        'UPDATE traces SET is_deleted = 0, updated_at = ? WHERE id = ?',
+        [Date.now(), id]
+      );
 
       return NextResponse.json({ success: true, action: 'restored' });
     }

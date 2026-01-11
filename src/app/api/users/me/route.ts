@@ -1,25 +1,24 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { db } from '@/lib/db';
-import { users } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { tursoExecute } from '@/lib/turso-client';
 
-export const GET = auth(async function GET(req) {
+export async function GET(request: NextRequest) {
   try {
-    if (!req.auth?.user?.id) {
+    const session = await auth();
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, req.auth.user.id))
-      .limit(1);
+    const result = await tursoExecute(
+      'SELECT id, name, email, image FROM users WHERE id = ? LIMIT 1',
+      [session.user.id]
+    );
 
-    if (!user) {
+    if (result.rows.length === 0) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
+    const user = result.rows[0];
     return NextResponse.json({
       id: user.id,
       name: user.name,
@@ -33,47 +32,52 @@ export const GET = auth(async function GET(req) {
       { status: 500 }
     );
   }
-});
+}
 
-export const PATCH = auth(async function PATCH(req) {
+export async function PATCH(request: NextRequest) {
   try {
-    if (!req.auth?.user?.id) {
+    const session = await auth();
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = await req.json();
+    const body = await request.json();
     const { name, image } = body;
 
-    const updateData: { name?: string; image?: string } = {};
-    
+    const updates: string[] = [];
+    const values: any[] = [];
+
     if (typeof name === 'string' && name.trim()) {
-      updateData.name = name.trim();
-    }
-    
-    if (typeof image === 'string') {
-      updateData.image = image;
+      updates.push('name = ?');
+      values.push(name.trim());
     }
 
-    if (Object.keys(updateData).length === 0) {
+    if (typeof image === 'string') {
+      updates.push('image = ?');
+      values.push(image);
+    }
+
+    if (updates.length === 0) {
       return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 });
     }
 
-    await db
-      .update(users)
-      .set(updateData)
-      .where(eq(users.id, req.auth.user.id));
+    values.push(session.user.id);
+    await tursoExecute(
+      `UPDATE users SET ${updates.join(', ')} WHERE id = ?`,
+      values
+    );
 
-    const [updatedUser] = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, req.auth.user.id))
-      .limit(1);
+    const result = await tursoExecute(
+      'SELECT id, name, email, image FROM users WHERE id = ? LIMIT 1',
+      [session.user.id]
+    );
 
+    const user = result.rows[0];
     return NextResponse.json({
-      id: updatedUser.id,
-      name: updatedUser.name,
-      email: updatedUser.email,
-      image: updatedUser.image,
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      image: user.image,
     });
   } catch (error) {
     console.error('PATCH /api/users/me error:', error);
@@ -82,15 +86,16 @@ export const PATCH = auth(async function PATCH(req) {
       { status: 500 }
     );
   }
-});
+}
 
-export const DELETE = auth(async function DELETE(req) {
+export async function DELETE(request: NextRequest) {
   try {
-    if (!req.auth?.user?.id) {
+    const session = await auth();
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    await db.delete(users).where(eq(users.id, req.auth.user.id));
+    await tursoExecute('DELETE FROM users WHERE id = ?', [session.user.id]);
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -100,4 +105,4 @@ export const DELETE = auth(async function DELETE(req) {
       { status: 500 }
     );
   }
-});
+}

@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { db } from '@/lib/db';
-import { comments, users } from '@/lib/db/schema';
-import { eq, and, isNull } from 'drizzle-orm';
+import { tursoExecute } from '@/lib/turso-client';
 
 export async function GET(
   request: NextRequest,
@@ -16,35 +14,36 @@ export async function GET(
 
     const { id: traceId } = await params;
 
-    const allComments = await db
-      .select({
-        comment: comments,
-        user: {
-          id: users.id,
-          name: users.name,
-          image: users.image,
-        },
-      })
-      .from(comments)
-      .leftJoin(users, eq(comments.userId, users.id))
-      .where(
-        and(
-          eq(comments.traceId, traceId),
-          eq(comments.isDeleted, false)
-        )
-      )
-      .orderBy(comments.createdAt);
+    const result = await tursoExecute(`
+      SELECT 
+        c.id, c.trace_id, c.user_id, c.parent_id, c.content, 
+        c.is_deleted, c.created_at, c.updated_at,
+        u.id as user_id_joined, u.name as user_name, u.image as user_image
+      FROM comments c
+      LEFT JOIN users u ON c.user_id = u.id
+      WHERE c.trace_id = ? AND c.is_deleted = 0
+      ORDER BY c.created_at
+    `, [traceId]);
 
-    const result = allComments
-      .filter((row) => row.user !== null)
+    const comments = result.rows
+      .filter((row) => row.user_id_joined !== null)
       .map((row) => ({
-        ...row.comment,
-        user: row.user!,
-        createdAt: new Date(row.comment.createdAt),
-        updatedAt: new Date(row.comment.updatedAt),
+        id: row.id,
+        traceId: row.trace_id,
+        userId: row.user_id,
+        parentId: row.parent_id,
+        content: row.content,
+        isDeleted: row.is_deleted === '1' || row.is_deleted === 1,
+        createdAt: new Date(Number(row.created_at)),
+        updatedAt: new Date(Number(row.updated_at)),
+        user: {
+          id: row.user_id_joined,
+          name: row.user_name,
+          image: row.user_image,
+        },
       }));
 
-    return NextResponse.json(result);
+    return NextResponse.json(comments);
   } catch (error) {
     console.error('GET /api/traces/[id]/comments error:', error);
     return NextResponse.json(
@@ -75,18 +74,12 @@ export async function POST(
     }
 
     if (parentId) {
-      const [parentComment] = await db
-        .select()
-        .from(comments)
-        .where(
-          and(
-            eq(comments.id, parentId),
-            eq(comments.traceId, traceId),
-            isNull(comments.parentId)
-          )
-        );
+      const parentResult = await tursoExecute(
+        'SELECT id FROM comments WHERE id = ? AND trace_id = ? AND parent_id IS NULL',
+        [parentId, traceId]
+      );
       
-      if (!parentComment) {
+      if (parentResult.rows.length === 0) {
         return NextResponse.json(
           { error: 'Parent comment not found or is already a reply' },
           { status: 400 }
@@ -94,30 +87,35 @@ export async function POST(
       }
     }
 
-    const [newComment] = await db
-      .insert(comments)
-      .values({
-        traceId,
-        userId: session.user.id,
-        parentId: parentId || null,
-        content: content.trim(),
-      })
-      .returning();
+    const id = crypto.randomUUID();
+    const now = Date.now();
 
-    const [user] = await db
-      .select({
-        id: users.id,
-        name: users.name,
-        image: users.image,
-      })
-      .from(users)
-      .where(eq(users.id, session.user.id));
+    await tursoExecute(
+      `INSERT INTO comments (id, trace_id, user_id, parent_id, content, is_deleted, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, 0, ?, ?)`,
+      [id, traceId, session.user.id, parentId || null, content.trim(), now, now]
+    );
+
+    const userResult = await tursoExecute(
+      'SELECT id, name, image FROM users WHERE id = ?',
+      [session.user.id]
+    );
+    const user = userResult.rows[0];
 
     return NextResponse.json({
-      ...newComment,
-      user,
-      createdAt: new Date(newComment.createdAt),
-      updatedAt: new Date(newComment.updatedAt),
+      id,
+      traceId,
+      userId: session.user.id,
+      parentId: parentId || null,
+      content: content.trim(),
+      isDeleted: false,
+      createdAt: new Date(now),
+      updatedAt: new Date(now),
+      user: {
+        id: user.id,
+        name: user.name,
+        image: user.image,
+      },
     }, { status: 201 });
   } catch (error) {
     console.error('POST /api/traces/[id]/comments error:', error);
