@@ -20,6 +20,7 @@ export function UserMenu() {
 
       queryClient.clear();
 
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
       await signOut({ redirect: false });
 
       window.location.href = '/login';

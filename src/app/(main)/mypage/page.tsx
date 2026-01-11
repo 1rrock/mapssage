@@ -142,8 +142,9 @@ function ProfileSection() {
 
 function AccountSection({ onDeleteClick }: { onDeleteClick: () => void }) {
   const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
     await signOut({ redirect: false });
-    window.location.href = '/login';
+    window.location.href = '/';
   };
 
   return (
@@ -184,6 +185,7 @@ function DeleteAccountModal({
     try {
       await deleteAccount.mutateAsync();
       toast.success('회원 탈퇴가 완료되었습니다');
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
       await signOut({ redirect: false });
       window.location.href = '/';
     } catch {
