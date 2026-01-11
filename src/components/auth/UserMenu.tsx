@@ -20,7 +20,9 @@ export function UserMenu() {
 
       queryClient.clear();
 
-      await signOut({ callbackUrl: '/login', redirect: true });
+      await signOut({ redirect: false });
+
+      window.location.href = '/login';
     } catch (error) {
       console.error('Sign out failed:', error);
       setIsSigningOut(false);

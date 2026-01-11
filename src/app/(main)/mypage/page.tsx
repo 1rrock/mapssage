@@ -141,10 +141,15 @@ function ProfileSection() {
 }
 
 function AccountSection({ onDeleteClick }: { onDeleteClick: () => void }) {
+  const handleLogout = async () => {
+    await signOut({ redirect: false });
+    window.location.href = '/login';
+  };
+
   return (
     <div className="flex flex-wrap justify-end gap-3 mt-4">
       <button
-        onClick={() => signOut({ callbackUrl: '/' })}
+        onClick={handleLogout}
         className="rounded-xl px-4 py-2 text-sm font-medium text-foreground/50 hover:text-foreground hover:bg-muted transition-colors"
       >
         로그아웃
@@ -179,7 +184,8 @@ function DeleteAccountModal({
     try {
       await deleteAccount.mutateAsync();
       toast.success('회원 탈퇴가 완료되었습니다');
-      signOut({ callbackUrl: '/' });
+      await signOut({ redirect: false });
+      window.location.href = '/';
     } catch {
       toast.error('회원 탈퇴에 실패했습니다');
     }
