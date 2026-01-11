@@ -3,6 +3,7 @@
 import { Drawer } from 'vaul';
 import type { TraceWithDistance } from '@/types/trace';
 import CommentSection from '@/components/comment/CommentSection';
+import { KakaoBannerAd } from '@/components/ads/KakaoAdFit';
 
 interface TraceDetailDrawerProps {
   trace: TraceWithDistance | null;
@@ -110,6 +111,8 @@ export default function TraceDetailDrawer({
               </div>
 
               <CommentSection traceId={trace.id} />
+
+              <KakaoBannerAd className="mt-6" />
 
               <div className="h-12" />
             </div>

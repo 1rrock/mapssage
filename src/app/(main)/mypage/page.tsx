@@ -6,6 +6,7 @@ import { signOut, useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import { useState, useRef } from 'react';
 import { cn } from '@/lib/utils';
+import { KakaoBannerAd } from '@/components/ads/KakaoAdFit';
 
 function ProfileSection() {
   const { data: session } = useSession();
@@ -414,6 +415,7 @@ export default function MyPage() {
 
         <div className="space-y-6">
           <ProfileSection />
+          <KakaoBannerAd />
           <TraceListSection />
           <AccountSection onDeleteClick={() => setShowDeleteModal(true)} />
         </div>

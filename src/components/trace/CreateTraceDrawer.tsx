@@ -5,6 +5,7 @@ import { Drawer } from 'vaul';
 import { toast } from 'sonner';
 import { useCreateTrace, useUploadImage } from '@/hooks/useTraces';
 import useCurrentLocation from '@/hooks/useCurrentLocation';
+import { KakaoBannerAd } from '@/components/ads/KakaoAdFit';
 
 interface CreateTraceDrawerProps {
   open: boolean;
@@ -199,6 +200,8 @@ export default function CreateTraceDrawer({
                   <span>현재 위치에서 메시지가 배달됩니다</span>
                 </div>
               )}
+
+              <KakaoBannerAd />
             </form>
           </div>
 

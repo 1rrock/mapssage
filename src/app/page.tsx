@@ -1,7 +1,7 @@
 import { auth } from '@/lib/auth';
 import { UserMenu } from '@/components/auth/UserMenu';
 import Link from 'next/link';
-import KakaoBannerAd from '@/components/ads/KakaoBannerAd';
+import { KakaoBannerAd } from '@/components/ads/KakaoAdFit';
 
 export default async function Home() {
   const session = await auth();

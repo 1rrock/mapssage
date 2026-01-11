@@ -1,5 +1,5 @@
 import Header from '@/components/layout/Header';
-import KakaoSideAd from '@/components/ads/KakaoSideAd';
+import { KakaoSideAd } from '@/components/ads/KakaoAdFit';
 
 export default function MainLayout({
   children,
